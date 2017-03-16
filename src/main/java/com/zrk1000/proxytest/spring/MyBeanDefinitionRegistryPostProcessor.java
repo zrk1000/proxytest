@@ -1,30 +1,59 @@
 package com.zrk1000.proxytest.spring;
 
-import com.zrk1000.proxytest.proxy.MyInterfaceImplFactory;
+import com.zrk1000.proxytest.annotation.DRCPService;
+import com.zrk1000.proxytest.proxy.ServiceFactoryBean;
 import com.zrk1000.proxytest.service.TestService;
 import org.springframework.beans.BeansException;
-
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.*;
-import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
+import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by rongkang on 2017-03-11.
  */
 @Component
-public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor ,ApplicationContextAware ,FactoryBean {
+public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor ,ApplicationContextAware {
 
-    ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
+    private ServiceFactoryBean<?> serviceFactoryBean = new ServiceFactoryBean();
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        TestService _proxy = MyInterfaceImplFactory.getProxy(TestService.class);
+
+        AnnotatedScanner scanner = new AnnotatedScanner(registry);
+        scanner.setBeanNameGenerator(new BeanNameGenerator() {
+            @Override
+            public String generateBeanName(BeanDefinition beanDefinition, BeanDefinitionRegistry beanDefinitionRegistry) {
+
+                AnnotatedBeanDefinition annotatedDef = (AnnotatedBeanDefinition) beanDefinition;
+                AnnotationMetadata amd = annotatedDef.getMetadata();
+                Set<String> types = amd.getAnnotationTypes();
+                String name = null;
+                for (String type : types) {
+                    System.out.println(type);
+                    AnnotationAttributes attributes = AnnotationAttributes.fromMap(amd.getAnnotationAttributes(type,false));
+//                    if (BOLT_ANNOTATION_CLASSNAME.equals(type)) {
+//                        //取boltId作为name
+//                        name = (String) attributes.get("boltId");
+//                        boltNameList.add(name);
+//                    }
+//                    if (StringUtils.isNoneBlank(name)) {
+//                        return name;
+//                    }
+                }
+                return null;
+            }
+        });
 //        if(_proxy instanceof TestService){
 //            System.out.println("============================");
 //        }
@@ -34,48 +63,47 @@ public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegi
 //        definition.setLazyInit(false);          //设置是否懒加载
 //        definition.setAutowireCandidate(true);  //设置是否可以被其他对象自动注入
 //        registry.registerBeanDefinition("testService", definition);
+
+        //获取BeanFactory
+        DefaultListableBeanFactory defaultListableBeanFactory =
+                (DefaultListableBeanFactory)applicationContext.getAutowireCapableBeanFactory();
+
+        BeanDefinitionBuilder beanDefinitionBuilder =
+                BeanDefinitionBuilder.genericBeanDefinition(serviceFactoryBean.getClass()).addConstructorArgValue(TestService.class);
+        //动态注册bean.
+        defaultListableBeanFactory.registerBeanDefinition("testServiceFactoryBean",beanDefinitionBuilder.getBeanDefinition());
     }
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        Map<String, Object> map=beanFactory.getBeansWithAnnotation(DRCPService.class);
+        for (String key : map.keySet()) {
+            System.out.println(map.get(key));;
 
+        }
     }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        //创建bean信息.
-//        TestService proxyTestService = MyInterfaceImplFactory.getProxy(TestService.class);
-//        Class a = TestService.class;
-//        Class<? extends TestService> aClass = proxyTestService.getClass();
-//        this.applicationContext = applicationContext;
-//        DefaultListableBeanFactory acf = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
-//        //获取BeanFactory
-//        DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory)applicationContext.getAutowireCapableBeanFactory();
-//
-//        BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(aClass);
-//        //动态注册bean.
-//        defaultListableBeanFactory.registerBeanDefinition("testService",beanDefinitionBuilder.getBeanDefinition());
-    }
-
-    @Override
-    public Object getObject() throws Exception {
-        TestService proxyTestService = MyInterfaceImplFactory.getProxy(TestService.class);
-        return proxyTestService;
-    }
-
-    @Override
-    public Class<?> getObjectType() {
-        return TestService.class;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return true;
+        this.applicationContext = applicationContext;
     }
 
 
-//    @Bean
-//    public TestService getMyInterface() {
-//        return MyInterfaceImplFactory.getProxy(TestService.class);
-//    }
+    public final static class AnnotatedScanner extends ClassPathBeanDefinitionScanner {
+        public AnnotatedScanner(BeanDefinitionRegistry registry) {
+            super(registry);
+        }
+
+        public void registerDefaultFilters() {
+            super.registerDefaultFilters();
+            this.addIncludeFilter(new AnnotationTypeFilter(DRCPService.class));
+        }
+
+        public boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
+            return super.isCandidateComponent(beanDefinition) && beanDefinition.getMetadata().hasAnnotation(DRCPService.class.getName());
+        }
+
+
+    }
+
 }

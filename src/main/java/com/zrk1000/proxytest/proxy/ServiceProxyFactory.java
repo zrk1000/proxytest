@@ -5,10 +5,10 @@ import java.lang.reflect.Proxy;
 /**
  * Created by rongkang on 2017-03-11.
  */
-public class MyInterfaceImplFactory{
+public class ServiceProxyFactory {
 
     public static <T> T getProxy(Class<T> clazz) {
-        return (T) Proxy.newProxyInstance(ProxyImpl.class.getClassLoader(), new Class<?>[] {clazz}, new ProxyImpl());
+        return (T) Proxy.newProxyInstance(ServiceProxy.class.getClassLoader(), new Class<?>[] {clazz}, new ServiceProxy());
     }
 
 
