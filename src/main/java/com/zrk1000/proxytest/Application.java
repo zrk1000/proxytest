@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.sql.DataSource;
+import java.util.Collections;
 
 /**
  *
@@ -77,7 +78,7 @@ public class Application extends SpringBootServletInitializer {
 	}
 	@RequestMapping("/say")
 	public String say(){
-		String result = testService.say("Tom ");
+		String result = testService.say("Tom ", Collections.<String, Object>singletonMap("name",100000L));
 		return result;
 	}
 }

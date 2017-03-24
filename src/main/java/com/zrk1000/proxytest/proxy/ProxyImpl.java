@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 public  class ProxyImpl implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        System.out.println("=== "+proxy.getClass()+"==="+method.getName());
+        System.out.println("=== "+proxy.getClass()+"==="+method.getName()+"==="+args.toString());
         // do something
         return proxy.getClass().toString();
     }
