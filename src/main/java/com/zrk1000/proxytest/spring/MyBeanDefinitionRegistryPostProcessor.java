@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 /**
  * Created by rongkang on 2017-03-11.
  */
-@Component
+//@Component
 public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor ,ApplicationContextAware ,FactoryBean {
 
     ApplicationContext applicationContext;

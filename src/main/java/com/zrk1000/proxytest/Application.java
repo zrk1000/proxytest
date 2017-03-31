@@ -3,6 +3,7 @@ package com.zrk1000.proxytest;
 import com.zrk1000.proxytest.model.User;
 import com.zrk1000.proxytest.service.TestService;
 import com.zrk1000.proxytest.service.UserService;
+import com.zrk1000.proxytest.spring.ServiceScannerConfigurer;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -70,7 +71,12 @@ public class Application extends SpringBootServletInitializer {
 	public PlatformTransactionManager transactionManager() {
 		return new DataSourceTransactionManager(dataSource());
 	}
-	
+	@Bean
+	public ServiceScannerConfigurer getServiceScannerConfigurer(){
+		ServiceScannerConfigurer serviceScannerConfigurer = new ServiceScannerConfigurer();
+		serviceScannerConfigurer.setBasePackage("com.zrk1000.proxytest.service");
+		return serviceScannerConfigurer;
+	}
 	@RequestMapping("/user")
 	public User user(){
 		User result = userService.getUser("Tom ");
