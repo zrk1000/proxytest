@@ -78,7 +78,7 @@ public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegi
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         Map<String, Object> map=beanFactory.getBeansWithAnnotation(DRCPService.class);
         for (String key : map.keySet()) {
-            System.out.println(map.get(key));;
+            System.out.println(map.get(key));
 
         }
     }
