@@ -1,22 +1,19 @@
 package com.zrk1000.proxytest.proxy;
 
-import org.apache.ibatis.binding.MapperMethod;
-import org.apache.ibatis.reflection.ExceptionUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import com.zrk1000.proxytest.rpc.RpcHandle;
 
 /**
  * Created by rongkang on 2017-03-11.
  */
-public  class ServiceProxy<T> implements InvocationHandler,Serializable {
+public  class ServiceProxy implements InvocationHandler,Serializable {
 
-//    private final Class<T> serviceInterface;
-//
-//    public ServiceProxy(Class<T> serviceInterface) {
-//        this.serviceInterface = serviceInterface;
-//    }
+    @Autowired
+    protected RpcHandle rpcHandle;
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -29,9 +26,8 @@ public  class ServiceProxy<T> implements InvocationHandler,Serializable {
             }
         //业务方法
         } else {
-            System.out.println("执行"+method.getName()+"方法");
-            System.out.println(method.getDeclaringClass().getName());
-            return null;
+            System.out.println(method.getDeclaringClass().getName()+"--"+method.getName());
+            return rpcHandle.exec(proxy, method, args);
         }
     }
 }
