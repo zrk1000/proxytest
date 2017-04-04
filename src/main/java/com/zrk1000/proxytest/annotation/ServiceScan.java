@@ -28,5 +28,7 @@ public @interface ServiceScan {
 
     Class<?> markerInterface() default Class.class;
 
+    String rpcHandleBeanRef() default "stormDrpcHandle";
+
 
 }

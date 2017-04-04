@@ -1,5 +1,7 @@
 package com.zrk1000.proxytest.rpc;
 
+import com.zrk1000.proxytest.proxy.ServiceMethod;
+
 import java.io.Closeable;
 import java.lang.reflect.Method;
 
@@ -8,6 +10,6 @@ import java.lang.reflect.Method;
  */
 public interface RpcHandle extends Closeable {
 
-    Object exec(Object proxy, Method method, Object[] args);
+    Object exec(ServiceMethod serviceMethod,Object[] args);
 
 }

@@ -15,11 +15,13 @@
  */
 package com.zrk1000.proxytest.spring;
 
+import com.zrk1000.proxytest.rpc.RpcHandle;
 import com.zrk1000.proxytest.service.TestService;
 import com.zrk1000.proxytest.service.UserService;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -30,6 +32,7 @@ import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -41,6 +44,10 @@ public class ClassPathServiceScanner extends ClassPathBeanDefinitionScanner {
   private Class<? extends Annotation> annotationClass;
 
   private Class<?> markerInterface;
+
+  private RpcHandle rpcHandle;
+
+  private String rpcHandleBeanName;
 
   private ServiceFactoryBean<?> serviceFactoryBean = new ServiceFactoryBean<Object>();
 
@@ -117,18 +124,27 @@ public class ClassPathServiceScanner extends ClassPathBeanDefinitionScanner {
   private void processBeanDefinitions(Set<BeanDefinitionHolder> beanDefinitions) {
     AbstractBeanDefinition definition;
     for (BeanDefinitionHolder holder : beanDefinitions) {
-//      definition =  
       definition = (AbstractBeanDefinition) holder.getBeanDefinition();
 
       if (logger.isDebugEnabled()) {
         logger.debug("Creating ServiceFactoryBean with name '" + holder.getBeanName()
           + "' and '" + definition.getBeanClassName() + "' serviceInterface");
       }
-      // the mapper interface is the original class of the bean
+      // the service interface is the original class of the bean
       // but, the actual class of the bean is ServiceFactoryBean
+      boolean explicitFactoryUsed = false;
       definition.getConstructorArgumentValues().addGenericArgumentValue(definition.getBeanClassName());
       definition.setBeanClass(this.serviceFactoryBean.getClass());
-      definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
+      if (StringUtils.hasText(this.rpcHandleBeanName)) {
+        definition.getPropertyValues().add("rpcHandle", new RuntimeBeanReference(this.rpcHandleBeanName));
+        explicitFactoryUsed = true;
+      } else if (this.rpcHandle != null) {
+        definition.getPropertyValues().add("rpcHandle", this.rpcHandle);
+        explicitFactoryUsed = true;
+      }
+      if(!explicitFactoryUsed){
+        definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
+      }
     }
   }
 
@@ -151,4 +167,27 @@ public class ClassPathServiceScanner extends ClassPathBeanDefinitionScanner {
     }
   }
 
+  public Class<? extends Annotation> getAnnotationClass() {
+    return annotationClass;
+  }
+
+  public Class<?> getMarkerInterface() {
+    return markerInterface;
+  }
+
+  public RpcHandle getRpcHandle() {
+    return rpcHandle;
+  }
+
+  public void setRpcHandle(RpcHandle rpcHandle) {
+    this.rpcHandle = rpcHandle;
+  }
+
+  public String getRpcHandleBeanName() {
+    return rpcHandleBeanName;
+  }
+
+  public void setRpcHandleBeanName(String rpcHandleBeanName) {
+    this.rpcHandleBeanName = rpcHandleBeanName;
+  }
 }

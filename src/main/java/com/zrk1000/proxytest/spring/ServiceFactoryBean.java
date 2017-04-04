@@ -16,11 +16,14 @@
 package com.zrk1000.proxytest.spring;
 
 import com.zrk1000.proxytest.proxy.ServiceProxyFactory;
+import com.zrk1000.proxytest.rpc.RpcHandle;
 import org.springframework.beans.factory.FactoryBean;
 
 public class ServiceFactoryBean<T>  implements FactoryBean<T> {
 
   private Class<T> serviceInterface;
+
+  private RpcHandle rpcHandle;
 
   public ServiceFactoryBean() {
   }
@@ -32,7 +35,7 @@ public class ServiceFactoryBean<T>  implements FactoryBean<T> {
   @Override
   public T getObject() throws Exception {
     System.out.println("*************"+serviceInterface.getCanonicalName());
-    return ServiceProxyFactory.getProxy(this.serviceInterface);
+    return ServiceProxyFactory.newInstance(this.serviceInterface,this.rpcHandle);
 
   }
 
@@ -55,4 +58,11 @@ public class ServiceFactoryBean<T>  implements FactoryBean<T> {
     return serviceInterface;
   }
 
+  public RpcHandle getRpcHandle() {
+    return rpcHandle;
+  }
+
+  public void setRpcHandle(RpcHandle rpcHandle) {
+    this.rpcHandle = rpcHandle;
+  }
 }

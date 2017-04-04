@@ -15,6 +15,7 @@
  */
 package com.zrk1000.proxytest.spring;
 
+import com.zrk1000.proxytest.rpc.RpcHandle;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.BeanNameAware;
@@ -37,7 +38,11 @@ import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import javax.servlet.ServletContext;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
@@ -49,11 +54,15 @@ public class ServiceScannerConfigurer implements BeanDefinitionRegistryPostProce
 
   private String basePackage ;
 
+  private RpcHandle rpcHandle;
+
   private Class<? extends Annotation> annotationClass;
 
   private Class<?> markerInterface;
 
   private ApplicationContext applicationContext;
+
+//  private WebApplicationContext subWac;
 
   private String beanName;
 
@@ -78,6 +87,14 @@ public class ServiceScannerConfigurer implements BeanDefinitionRegistryPostProce
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
+//    //获取父容器
+//    WebApplicationContext rootWac= ContextLoader.getCurrentWebApplicationContext();
+//    //获取servletContext
+//    ServletContext servletContext = rootWac.getServletContext();
+//    //获取子容器
+//    WebApplicationContext subWac= WebApplicationContextUtils.getWebApplicationContext(servletContext,
+//            "org.springframework.web.servlet.FrameworkServlet.CONTEXT.springServlet" );
+//    this.subWac = subWac;
   }
 
   @Override
@@ -102,10 +119,12 @@ public class ServiceScannerConfigurer implements BeanDefinitionRegistryPostProce
   @Override
   public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
     // left intentionally blank
+    System.out.println("postProcessBeanFactory");
   }
 
   @Override
   public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
+    System.out.println("postProcessBeanDefinitionRegistry");
     if (this.processPropertyPlaceHolders) {
       processPropertyPlaceHolders();
     }
@@ -115,6 +134,7 @@ public class ServiceScannerConfigurer implements BeanDefinitionRegistryPostProce
     scanner.setMarkerInterface(this.markerInterface);
     scanner.setResourceLoader(this.applicationContext);
     scanner.setBeanNameGenerator(this.nameGenerator);
+    scanner.setRpcHandle(this.rpcHandle);
     scanner.registerFilters();
     scanner.scan(StringUtils.tokenizeToStringArray(this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
   }
@@ -157,5 +177,33 @@ public class ServiceScannerConfigurer implements BeanDefinitionRegistryPostProce
     } else {
       return null;
     }
+  }
+
+  public RpcHandle getRpcHandle() {
+    return rpcHandle;
+  }
+
+  public void setRpcHandle(RpcHandle rpcHandle) {
+    this.rpcHandle = rpcHandle;
+  }
+
+  public String getBasePackage() {
+    return basePackage;
+  }
+
+  public Class<? extends Annotation> getAnnotationClass() {
+    return annotationClass;
+  }
+
+  public Class<?> getMarkerInterface() {
+    return markerInterface;
+  }
+
+  public String getBeanName() {
+    return beanName;
+  }
+
+  public boolean isProcessPropertyPlaceHolders() {
+    return processPropertyPlaceHolders;
   }
 }

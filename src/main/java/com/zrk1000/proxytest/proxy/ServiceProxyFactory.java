@@ -1,5 +1,7 @@
 package com.zrk1000.proxytest.proxy;
 
+import com.zrk1000.proxytest.rpc.RpcHandle;
+
 import java.lang.reflect.Proxy;
 
 /**
@@ -7,8 +9,8 @@ import java.lang.reflect.Proxy;
  */
 public class ServiceProxyFactory {
 
-    public static <T> T getProxy(Class<T> clazz) {
-        return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[] {clazz}, new ServiceProxy());
+    public static <T> T newInstance(Class<T> clazz, RpcHandle rpcHandle) {
+        return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[] {clazz}, new ServiceProxy(rpcHandle,clazz));
     }
 
 

@@ -56,7 +56,7 @@ public class ServiceScannerRegistrar implements ImportBeanDefinitionRegistrar {
     if (!BeanNameGenerator.class.equals(generatorClass)) {
       scanner.setBeanNameGenerator(BeanUtils.instantiateClass(generatorClass));
     }
-
+    scanner.setRpcHandleBeanName(annoAttrs.getString("rpcHandleBeanRef"));
     List<String> basePackages = new ArrayList<String>();
     for (String pkg : annoAttrs.getStringArray("value")) {
       if (StringUtils.hasText(pkg)) {

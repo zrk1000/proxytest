@@ -1,41 +1,42 @@
 package com.zrk1000.proxytest.spring;
 
-import com.zrk1000.proxytest.annotation.DRCPService;
 import com.zrk1000.proxytest.service.TestService;
 import com.zrk1000.proxytest.service.UserService;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
-import org.springframework.beans.factory.support.*;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
-import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import java.util.Map;
-import java.util.Set;
+import javax.servlet.ServletContext;
 
 /**
  * Created by rongkang on 2017-03-11.
  */
 
-//@Component
+@Component
 //@Configuration
 public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor ,ApplicationContextAware ,PriorityOrdered {
 
-    private ApplicationContext applicationContext;
-    private ServiceFactoryBean<?> serviceFactoryBean = new ServiceFactoryBean();
+    public static  ApplicationContext applicationContext;
+//    private ServiceFactoryBean<?> serviceFactoryBean = new ServiceFactoryBean();
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
+//      获取子容器里的bean
+//        subWac.getBean(beanName);
+//        subWac.
 //        AnnotatedScanner scanner = new AnnotatedScanner(registry);
 //        scanner.setBeanNameGenerator(new BeanNameGenerator() {
 //            @Override
@@ -78,30 +79,30 @@ public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegi
 //                BeanDefinitionBuilder
 //                        .genericBeanDefinition(serviceFactoryBean.getClass())
 //                        .addConstructorArgValue(TestService.class);
-        BeanDefinitionBuilder beanDefinitionBuilder1 =
-                BeanDefinitionBuilder
-                        .genericBeanDefinition(TestService.class);
+//        BeanDefinitionBuilder beanDefinitionBuilder1 =
+//                BeanDefinitionBuilder
+//                        .genericBeanDefinition(TestService.class);
+////        BeanDefinitionBuilder beanDefinitionBuilder2 =
+////                BeanDefinitionBuilder
+////                        .genericBeanDefinition(serviceFactoryBean.getClass())
+////                        .addConstructorArgValue(UserService.class);
 //        BeanDefinitionBuilder beanDefinitionBuilder2 =
 //                BeanDefinitionBuilder
-//                        .genericBeanDefinition(serviceFactoryBean.getClass())
-//                        .addConstructorArgValue(UserService.class);
-        BeanDefinitionBuilder beanDefinitionBuilder2 =
-                BeanDefinitionBuilder
-                        .genericBeanDefinition(UserService.class);
-//        //动态注册bean.
-        registry.registerBeanDefinition("testService",beanDefinitionBuilder1.getBeanDefinition());
-        registry.registerBeanDefinition("userService",beanDefinitionBuilder2.getBeanDefinition());
-
-        beanDefinitionBuilder1.getBeanDefinition().getConstructorArgumentValues().
-                addGenericArgumentValue(beanDefinitionBuilder1.getBeanDefinition().getBeanClassName());
-        beanDefinitionBuilder1.getBeanDefinition().setBeanClass(serviceFactoryBean.getClass());
-//        beanDefinitionBuilder1.getBeanDefinition().getConstructorArgumentValues().addIndexedArgumentValue(0, TestService.class);
-
-
-        beanDefinitionBuilder2.getBeanDefinition().getConstructorArgumentValues().
-                addGenericArgumentValue(beanDefinitionBuilder2.getBeanDefinition().getBeanClassName());
-        beanDefinitionBuilder2.getBeanDefinition().setBeanClass(serviceFactoryBean.getClass());
-//        beanDefinitionBuilder2.getBeanDefinition().getConstructorArgumentValues().addIndexedArgumentValue(0, UserService.class);
+//                        .genericBeanDefinition(UserService.class);
+////        //动态注册bean.
+//        registry.registerBeanDefinition("testService",beanDefinitionBuilder1.getBeanDefinition());
+//        registry.registerBeanDefinition("userService",beanDefinitionBuilder2.getBeanDefinition());
+//
+//        beanDefinitionBuilder1.getBeanDefinition().getConstructorArgumentValues().
+//                addGenericArgumentValue(beanDefinitionBuilder1.getBeanDefinition().getBeanClassName());
+//        beanDefinitionBuilder1.getBeanDefinition().setBeanClass(serviceFactoryBean.getClass());
+////        beanDefinitionBuilder1.getBeanDefinition().getConstructorArgumentValues().addIndexedArgumentValue(0, TestService.class);
+//
+//
+//        beanDefinitionBuilder2.getBeanDefinition().getConstructorArgumentValues().
+//                addGenericArgumentValue(beanDefinitionBuilder2.getBeanDefinition().getBeanClassName());
+//        beanDefinitionBuilder2.getBeanDefinition().setBeanClass(serviceFactoryBean.getClass());
+////        beanDefinitionBuilder2.getBeanDefinition().getConstructorArgumentValues().addIndexedArgumentValue(0, UserService.class);
     }
 
     @Override
@@ -130,11 +131,12 @@ public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegi
 
         public void registerDefaultFilters() {
             super.registerDefaultFilters();
-            this.addIncludeFilter(new AnnotationTypeFilter(DRCPService.class));
+//            this.addIncludeFilter(new AnnotationTypeFilter(DRCPService.class));
         }
 
         public boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
-            return super.isCandidateComponent(beanDefinition) && beanDefinition.getMetadata().hasAnnotation(DRCPService.class.getName());
+            return super.isCandidateComponent(beanDefinition);
+//                    && beanDefinition.getMetadata().hasAnnotation(DRCPService.class.getName());
         }
 
 
