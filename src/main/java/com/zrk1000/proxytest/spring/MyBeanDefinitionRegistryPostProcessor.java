@@ -33,7 +33,7 @@ public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegi
 //    private ServiceFactoryBean<?> serviceFactoryBean = new ServiceFactoryBean();
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-
+        System.out.println("==========postProcessBeanDefinitionRegistry");
 //      获取子容器里的bean
 //        subWac.getBean(beanName);
 //        subWac.
@@ -107,6 +107,7 @@ public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegi
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        System.out.println("==========postProcessBeanFactory");
 //        Map<String, Object> map=beanFactory.getBeansWithAnnotation(DRCPService.class);
 //        for (String key : map.keySet()) {
 //            System.out.println(map.get(key));

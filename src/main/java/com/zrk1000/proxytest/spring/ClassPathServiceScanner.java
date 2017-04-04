@@ -26,6 +26,7 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
+import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
@@ -117,14 +118,24 @@ public class ClassPathServiceScanner extends ClassPathBeanDefinitionScanner {
     } else {
       processBeanDefinitions(beanDefinitions);
     }
-
     return beanDefinitions;
   }
 
+  public static String captureName(String name) {
+    name = name.substring(name.lastIndexOf(".")+1)+"Impl";
+    return name.substring(0,1).toLowerCase()+name.substring(1);
+
+  }
+
   private void processBeanDefinitions(Set<BeanDefinitionHolder> beanDefinitions) {
+    System.out.println("***************processBeanDefinitions");
     AbstractBeanDefinition definition;
     for (BeanDefinitionHolder holder : beanDefinitions) {
+
       definition = (AbstractBeanDefinition) holder.getBeanDefinition();
+      String implName = captureName(definition.getBeanClassName());
+      if(this.getRegistry().containsBeanDefinition(implName))
+        this.getRegistry().removeBeanDefinition(implName);
 
       if (logger.isDebugEnabled()) {
         logger.debug("Creating ServiceFactoryBean with name '" + holder.getBeanName()
@@ -146,6 +157,8 @@ public class ClassPathServiceScanner extends ClassPathBeanDefinitionScanner {
         definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
       }
     }
+
+
   }
 
 
