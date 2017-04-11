@@ -7,6 +7,6 @@ import com.zrk1000.proxytest.model.User;
  */
 public interface UserService {
 
-    User getUser(String name);
+    User getUser(String name) throws Exception;
 
 }

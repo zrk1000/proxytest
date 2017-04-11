@@ -1,15 +1,12 @@
 package com.zrk1000.proxytest.proxy;
 
-import org.apache.ibatis.binding.MapperMethod;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.zrk1000.proxytest.rpc.RpcHandle;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.zrk1000.proxytest.rpc.RpcHandle;
 
 /**
  * Created by rongkang on 2017-03-11.

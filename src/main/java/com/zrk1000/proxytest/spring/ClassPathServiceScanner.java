@@ -22,10 +22,7 @@ import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
+import org.springframework.beans.factory.support.*;
 import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.type.classreading.MetadataReader;
@@ -94,6 +91,7 @@ public class ClassPathServiceScanner extends ClassPathBeanDefinitionScanner {
         @Override
         public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException {
           return true;
+
         }
       });
     }
@@ -121,9 +119,16 @@ public class ClassPathServiceScanner extends ClassPathBeanDefinitionScanner {
     return beanDefinitions;
   }
 
-  public static String captureName(String name) {
-    name = name.substring(name.lastIndexOf(".")+1)+"Impl";
-    return name.substring(0,1).toLowerCase()+name.substring(1);
+  public  void removeOtherBeanDefinitionByName(BeanDefinitionHolder holder) {
+    try {
+      String[] beanNames = ((DefaultListableBeanFactory) this.getRegistry()).getBeanNamesForType(Class.forName(holder.getBeanDefinition().getBeanClassName()));
+      for (String beanName:beanNames) {
+        if(!holder.getBeanName().equals(beanName) && this.getRegistry().containsBeanDefinition(beanName))
+          this.getRegistry().removeBeanDefinition(beanName);
+      }
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    }
 
   }
 
@@ -133,10 +138,8 @@ public class ClassPathServiceScanner extends ClassPathBeanDefinitionScanner {
     for (BeanDefinitionHolder holder : beanDefinitions) {
 
       definition = (AbstractBeanDefinition) holder.getBeanDefinition();
-      String implName = captureName(definition.getBeanClassName());
-      if(this.getRegistry().containsBeanDefinition(implName))
-        this.getRegistry().removeBeanDefinition(implName);
 
+      removeOtherBeanDefinitionByName(holder);
       if (logger.isDebugEnabled()) {
         logger.debug("Creating ServiceFactoryBean with name '" + holder.getBeanName()
           + "' and '" + definition.getBeanClassName() + "' serviceInterface");

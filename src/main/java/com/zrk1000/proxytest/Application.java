@@ -23,6 +23,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.sql.DataSource;
@@ -58,9 +59,14 @@ public class Application extends SpringBootServletInitializer {
 	private TestService testService;
 
 	@RequestMapping("/user")
-	public User user(){
-		
-		User result = userService.getUser("Tom ");
+	public User user(@RequestParam(required = false) String name){
+
+		User result = null;
+		try {
+			result = userService.getUser(name);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return result;
 	}
 	@RequestMapping("/say")

@@ -1,5 +1,6 @@
 package com.zrk1000.proxytest.rpc.drpc;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.zrk1000.proxytest.bolt.DispatchBolt;
 import com.zrk1000.proxytest.proxy.ServiceMethod;
@@ -52,8 +53,19 @@ public class StormLocalDrpcHandle implements RpcHandle {
     }
 
     public Object exec(ServiceMethod serviceMethod, Object[] args) {
-        String result = drpc.execute(this.drpcService, new DrpcRequest(serviceMethod.getClazz(),serviceMethod.getMethodName(),serviceMethod.hashCode(),args).toJSONString());
-        return JSONObject.parseObject(result, serviceMethod.getReturnType());
+        DrpcResponse drpcResponse = new DrpcResponse();
+        String result = null;
+        try{
+            result = drpc.execute(this.drpcService, new DrpcRequest(serviceMethod.getClazz(),serviceMethod.getMethodName(),serviceMethod.hashCode(),args).toJSONString());
+        }catch (Exception e){
+            e.printStackTrace();
+            drpcResponse.setCode(500);
+            drpcResponse.setMsg("drpc error");
+        }
+        if(result!=null)
+            drpcResponse = JSON.parseObject(result, DrpcResponse.class);
+
+        return JSONObject.parseObject(JSON.toJSONString(drpcResponse.getData()), serviceMethod.getReturnType());
     }
 
     @Override

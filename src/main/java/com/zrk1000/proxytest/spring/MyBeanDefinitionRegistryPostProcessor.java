@@ -107,6 +107,8 @@ public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegi
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        TestService bean = beanFactory.getBean(TestService.class);
+
         System.out.println("==========postProcessBeanFactory");
 //        Map<String, Object> map=beanFactory.getBeansWithAnnotation(DRCPService.class);
 //        for (String key : map.keySet()) {

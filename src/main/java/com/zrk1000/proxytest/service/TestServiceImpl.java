@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Created by rongkang on 2017-03-11.
  */
-@Service
+@Service("myTestService")
 public class TestServiceImpl implements TestService{
 
     public String say(String name, Map<String, Object> map) {
