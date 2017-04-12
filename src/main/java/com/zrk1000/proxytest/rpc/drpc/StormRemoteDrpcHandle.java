@@ -10,45 +10,49 @@ import org.apache.storm.LocalCluster;
 import org.apache.storm.LocalDRPC;
 import org.apache.storm.drpc.DRPCSpout;
 import org.apache.storm.drpc.ReturnResults;
+import org.apache.storm.shade.com.google.common.collect.Maps;
+import org.apache.storm.thrift.transport.TTransportException;
 import org.apache.storm.topology.TopologyBuilder;
+import org.apache.storm.utils.DRPCClient;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Created by rongkang on 2017-04-02.
  */
-@Profile("dev")
-@Component("stormLocalDrpcHandle")
-public class StormLocalDrpcHandle implements RpcHandle {
+@Profile("prod")
+@Component("stormRemoteDrpcHandle")
+public class StormRemoteDrpcHandle implements RpcHandle {
 
-    private LocalDRPC drpc ;
+    private DRPCClient drpc ;
 
     private String drpcService ;
 
-    public StormLocalDrpcHandle() {
-        this.drpc = new LocalDRPC();
+    public StormRemoteDrpcHandle() {
+        Map<String,Object> map = Maps.newHashMap();
+        map.put("storm.thrift.transport","org.apache.storm.security.auth.SimpleTransportPlugin");
+        map.put("storm.nimbus.retry.times",3);
+        map.put("storm.nimbus.retry.interval.millis",10000);
+        map.put("storm.nimbus.retry.intervalceiling.millis",60000);
+        map.put("drpc.max_buffer_size",104857600);
+        try {
+            this.drpc = new DRPCClient(map,"192.168.1.81",3772,3000);
+        } catch (TTransportException e) {
+            e.printStackTrace();
+        }
         this.drpcService = "drpcService";
 
-        TopologyBuilder builder = new TopologyBuilder();
-        Config conf = new Config();
-        conf.setNumWorkers(2);
-        conf.setDebug(true);
-//        conf.put(Config.TOPOLOGY_MAX_SPOUT_PENDING, 1);
-        DRPCSpout drpcSpout = new DRPCSpout(this.drpcService, drpc);
-        builder.setSpout("drpcSpout", drpcSpout, 1);
-        builder.setBolt("dispatch", new DispatchBolt(),1) .shuffleGrouping("drpcSpout");
-        builder.setBolt("return", new ReturnResults(), 1).shuffleGrouping("dispatch");
-
-        LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology("local_cluster", conf, builder.createTopology());
     }
 
     public Object exec(ServiceMethod serviceMethod, Object[] args) {
         DrpcResponse drpcResponse = new DrpcResponse();
         String result = null;
         try{
+            String drpcService = "";
+
             result = drpc.execute(this.drpcService, new DrpcRequest(serviceMethod.getClazz(),serviceMethod.getMethodName(),serviceMethod.hashCode(),args).toJSONString());
         }catch (Exception e){
             e.printStackTrace();

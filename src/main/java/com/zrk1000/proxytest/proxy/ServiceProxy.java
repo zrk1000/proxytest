@@ -41,7 +41,7 @@ public  class ServiceProxy<T> implements InvocationHandler,Serializable {
     }
 
     private ServiceMethod cachedServiceMethod(Method method) {
-        ServiceMethod serviceMethod = (ServiceMethod)this.methodCache.get(method);
+        ServiceMethod serviceMethod = this.methodCache.get(method);
         if(serviceMethod == null) {
             serviceMethod = new ServiceMethod(this.serviceInterface, method);
             this.methodCache.put(method, serviceMethod);

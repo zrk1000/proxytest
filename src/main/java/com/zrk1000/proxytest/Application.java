@@ -2,31 +2,18 @@ package com.zrk1000.proxytest;
 
 import com.zrk1000.proxytest.annotation.ServiceScan;
 import com.zrk1000.proxytest.model.User;
-import com.zrk1000.proxytest.rpc.RpcHandle;
-import com.zrk1000.proxytest.rpc.drpc.StormLocalDrpcHandle;
 import com.zrk1000.proxytest.service.TestService;
 import com.zrk1000.proxytest.service.UserService;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.sql.DataSource;
 import java.util.Collections;
 
 /**
@@ -37,7 +24,7 @@ import java.util.Collections;
 //@MapperScan("com.zrk1000.proxytest.mapper")
 //@ImportResource("spring/spring-context.xml")
 //@ComponentScan("")
-@ServiceScan(basePackages = "com.zrk1000.proxytest.service",rpcHandleBeanRef="stormDrpcHandle")
+@ServiceScan(basePackages = "com.zrk1000.proxytest.service",rpcHandleBeanRef="stormLocalDrpcHandle")
 @RestController
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
