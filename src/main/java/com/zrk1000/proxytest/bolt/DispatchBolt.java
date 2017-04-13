@@ -96,8 +96,7 @@ public class DispatchBolt extends BaseBasicBolt {
         }else {
             methodMap =  beanCache.get(request.getInterfaceClazz());
         }
-        Method method = methodMap.get(request.getMethodHashCode());
-        return method;
+        return methodMap.get(request.getMethodHashCode());
     }
 
 }

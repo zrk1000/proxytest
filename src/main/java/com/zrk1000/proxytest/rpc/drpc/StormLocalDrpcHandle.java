@@ -53,7 +53,7 @@ public class StormLocalDrpcHandle implements RpcHandle {
         }catch (Exception e){
             e.printStackTrace();
             drpcResponse.setCode(500);
-            drpcResponse.setMsg("drpc error");
+            drpcResponse.setMsg(e.getMessage());
         }
         if(result!=null)
             drpcResponse = JSON.parseObject(result, DrpcResponse.class);
